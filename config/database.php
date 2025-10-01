@@ -31,6 +31,13 @@ return [
 
     'connections' => [
 
+        'mongodb' => [
+    'driver'   => 'mongodb',
+    'dsn'      => env('MONGODB_DSN', 'mongodb://127.0.0.1:27017'),
+    'database' => env('MONGODB_DATABASE', 'smartspend_mongo'),
+],
+
+
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),

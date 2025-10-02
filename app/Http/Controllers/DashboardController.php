@@ -19,17 +19,17 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-        // Current month data
+        
         $currentMonth = now();
         $currentYear = $currentMonth->year;
         $currentMonthNumber = $currentMonth->month;
         
-        // Total Income and Expenses (All Time)
+    
         $totalIncome = Income::where('user_id', $user->id)->sum('amount');
         $totalExpenses = Expense::where('user_id', $user->id)->sum('amount');
         $netBalance = $totalIncome - $totalExpenses;
         
-        // Current Month Data
+
         $monthlyIncome = Income::where('user_id', $user->id)
             ->whereYear('date', $currentYear)
             ->whereMonth('date', $currentMonthNumber)
@@ -42,7 +42,7 @@ class DashboardController extends Controller
             
         $monthlyBalance = $monthlyIncome - $monthlyExpenses;
         
-        // Recent Transactions (Latest 5 of each)
+    
         $recentIncomes = Income::where('user_id', $user->id)
             ->orderBy('date', 'desc')
             ->limit(5)
@@ -54,7 +54,7 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
         
-        // Expenses by Category (Current Month)
+        
         $expensesByCategory = Expense::select('category_id', DB::raw('SUM(amount) as total'))
             ->with('category')
             ->where('user_id', $user->id)
@@ -64,7 +64,7 @@ class DashboardController extends Controller
             ->orderBy('total', 'desc')
             ->get();
         
-        // Monthly Spending Trend (Last 6 months)
+    
         $monthlyTrend = [];
         for ($i = 5; $i >= 0; $i--) {
             $date = now()->subMonths($i);
@@ -79,7 +79,7 @@ class DashboardController extends Controller
             ];
         }
         
-        // Top Categories (All Time)
+
         $topCategories = Expense::select('category_id', DB::raw('SUM(amount) as total'), DB::raw('COUNT(*) as count'))
             ->with('category')
             ->where('user_id', $user->id)
@@ -88,7 +88,6 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
         
-        // Budget Analysis (Simple comparison with last month)
         $lastMonth = now()->subMonth();
         $lastMonthExpenses = Expense::where('user_id', $user->id)
             ->whereYear('date', $lastMonth->year)
@@ -99,7 +98,7 @@ class DashboardController extends Controller
             ? (($monthlyExpenses - $lastMonthExpenses) / $lastMonthExpenses) * 100 
             : 0;
         
-        // Savings Rate
+
         $savingsRate = $monthlyIncome > 0 
             ? (($monthlyIncome - $monthlyExpenses) / $monthlyIncome) * 100 
             : 0;

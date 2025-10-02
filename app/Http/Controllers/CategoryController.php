@@ -13,9 +13,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        // Get all categories for the authenticated user, ordered by name
         $categories = Category::where('user_id', Auth::id())
-            ->withCount('expenses') // Count how many expenses each category has
+            ->withCount('expenses')
             ->orderBy('name')
             ->paginate(10);
 
@@ -27,7 +26,6 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        // Pre-defined color options for easy selection
         $colorOptions = [
             '#FF6B6B' => 'Red',
             '#4ECDC4' => 'Teal',
@@ -75,12 +73,10 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        // Make sure the category belongs to the authenticated user
         if ($category->user_id !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
 
-        // Get expenses for this category with pagination
         $expenses = $category->expenses()
             ->orderBy('date', 'desc')
             ->paginate(10);
@@ -93,12 +89,10 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        // Make sure the category belongs to the authenticated user
         if ($category->user_id !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
 
-        // Pre-defined color options for easy selection
         $colorOptions = [
             '#FF6B6B' => 'Red',
             '#4ECDC4' => 'Teal',
@@ -125,7 +119,6 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        // Make sure the category belongs to the authenticated user
         if ($category->user_id !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
@@ -150,12 +143,10 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        // Make sure the category belongs to the authenticated user
         if ($category->user_id !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
 
-        // Check if category has expenses
         $expenseCount = $category->expenses()->count();
         
         if ($expenseCount > 0) {

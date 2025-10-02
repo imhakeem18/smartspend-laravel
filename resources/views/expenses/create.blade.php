@@ -82,7 +82,7 @@
                             
                             @if($categories->count() == 0)
                                 <p style="color: #f59e0b; font-size: 0.875rem; margin-top: 0.25rem;">
-                                    No categories found. <a href="#" style="color: #3b82f6; text-decoration: underline;">Create a category first</a>
+                                    No categories found. <a href="{{ route('categories.create') }}" style="color: #3b82f6; text-decoration: underline;">Create a category first</a>
                                 </p>
                             @endif
                         </div>

@@ -61,8 +61,7 @@
                                         <label for="color_{{ $loop->index }}" 
                                                style="display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 0.5rem; border: 2px solid transparent; border-radius: 0.5rem; transition: all 0.2s;"
                                                onmouseover="this.style.borderColor='#d1d5db'"
-                                               onmouseout="this.style.borderColor='transparent'"
-                                               onclick="updatePreview('{{ $hex }}', '{{ $name }}')">
+                                               onmouseout="this.style.borderColor='transparent'">
                                             <div style="width: 40px; height: 40px; background-color: {{ $hex }}; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
                                             <span style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; text-align: center;">{{ $name }}</span>
                                         </label>
@@ -78,7 +77,6 @@
                                 <input type="color" 
                                        id="custom_color" 
                                        value="#10b981"
-                                       onchange="selectCustomColor(this.value)"
                                        style="width: 40px; height: 40px; border: none; border-radius: 50%; cursor: pointer;">
                             </div>
                             
@@ -157,21 +155,21 @@
             const previewInitial = document.getElementById('preview_initial');
             const previewName = document.getElementById('preview_name');
             const previewDescription = document.getElementById('preview_description');
-            
+
             // Update color
             previewCircle.style.backgroundColor = color;
-            
+
             // Update initial
             const name = nameInput.value || 'New Category';
             previewInitial.textContent = name.charAt(0).toUpperCase();
-            
+
             // Update name
             previewName.textContent = name;
-            
+
             // Update description
             const desc = descInput.value || 'Category description will appear here';
             previewDescription.textContent = desc;
-            
+
             // Update selected radio button styles
             document.querySelectorAll('input[name="color"]').forEach(radio => {
                 const label = radio.nextElementSibling;
@@ -185,45 +183,58 @@
                 }
             });
         }
-        
+
         function selectCustomColor(color) {
-            // Create a new radio button for custom color if it doesn't exist
-            const existingCustom = document.querySelector(`input[value="${color}"]`);
-            if (!existingCustom) {
-                // Uncheck all existing radios
-                document.querySelectorAll('input[name="color"]').forEach(radio => {
-                    radio.checked = false;
-                    radio.nextElementSibling.style.borderColor = 'transparent';
-                    radio.nextElementSibling.style.transform = 'scale(1)';
-                });
-                
-                // Update the form to use custom color
-                const colorInput = document.createElement('input');
-                colorInput.type = 'hidden';
-                colorInput.name = 'color';
-                colorInput.value = color;
-                document.getElementById('categoryForm').appendChild(colorInput);
+            // Uncheck all radios and reset styles
+            document.querySelectorAll('input[name="color"]').forEach(radio => {
+                radio.checked = false;
+                radio.nextElementSibling.style.borderColor = 'transparent';
+                radio.nextElementSibling.style.transform = 'scale(1)';
+            });
+
+            // Remove existing hidden inputs to avoid duplicates
+            const existingCustom = document.querySelector('input[name="color"][type="hidden"]');
+            if (existingCustom) {
+                existingCustom.remove();
             }
-            
+
+            // Add hidden input with custom color for form submission
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'color';
+            hiddenInput.value = color;
+            document.getElementById('categoryForm').appendChild(hiddenInput);
+
             updatePreview(color, 'Custom');
         }
-        
-        // Update preview when typing
-        document.getElementById('name').addEventListener('input', function() {
-            const selectedColor = document.querySelector('input[name="color"]:checked');
-            const color = selectedColor ? selectedColor.value : '#10b981';
-            updatePreview(color, 'Selected');
-        });
-        
-        document.getElementById('description').addEventListener('input', function() {
-            const selectedColor = document.querySelector('input[name="color"]:checked');
-            const color = selectedColor ? selectedColor.value : '#10b981';
-            updatePreview(color, 'Selected');
-        });
-        
-        // Initialize preview with default values
+
+        // Add event listeners for live updates
         document.addEventListener('DOMContentLoaded', function() {
-            updatePreview('#10b981', 'Default');
+            // Live update preview when selecting standard colors
+            document.querySelectorAll('input[name="color"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    updatePreview(radio.value, 'Selected');
+                });
+            });
+
+            // Live update preview with custom color picker
+            document.getElementById('custom_color').addEventListener('change', function() {
+                selectCustomColor(this.value);
+            });
+
+            // Live update preview when typing category name or description
+            ['name', 'description'].forEach(id => {
+                document.getElementById(id).addEventListener('input', () => {
+                    const selectedRadio = document.querySelector('input[name="color"]:checked') || document.querySelector('input[name="color"][type="hidden"]');
+                    const color = selectedRadio ? selectedRadio.value : '#10b981';
+                    updatePreview(color, 'Selected');
+                });
+            });
+
+            // Initialize preview on page load
+            const selectedRadio = document.querySelector('input[name="color"]:checked');
+            const initialColor = selectedRadio ? selectedRadio.value : '#10b981';
+            updatePreview(initialColor, 'Default');
         });
     </script>
 </x-app-layout>

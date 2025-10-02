@@ -32,3 +32,8 @@ Route::resource('categories', CategoryController::class);
 Route::get('/dashboard', [DashboardController::class, 'index'])
        ->middleware(['auth', 'verified'])
        ->name('dashboard');
+
+Route::get('/run-migrations', function () {
+    Artisan::call('migrate', ['--force' => true]);
+    return 'Migrations run successfully!';
+})->middleware('auth');
